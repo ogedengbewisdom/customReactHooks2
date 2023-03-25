@@ -1,16 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import Tasks from './components/Tasks/Tasks';
 import NewTask from './components/NewTask/NewTask';
 import useHttpRequest from './hooks/useHttp';
 
 
 function App() {
+  const [tasks, setTasks] = useState([]);
 
-  const httpObjVal = {
+  const httpObjVal = useMemo( () => {
+    return {
     url: 'https://customreacthooks-ce486-default-rtdb.firebaseio.com/tasks.json'
-  }
+  }}, [])
   
-  const httpDataFunc = (data) => {
+  const httpDataFunc = useCallback((data) => {
   
     const loadedTasks = []
     for (const taskKey in data) {
@@ -20,9 +22,7 @@ function App() {
       })
     }
     setTasks(loadedTasks)
-  }
-  
-  const [tasks, setTasks] = useState([]);
+  }, [])
 
   const {isLoading, error, sendHttpRequest: fetchTasks} = useHttpRequest(httpObjVal, httpDataFunc)
 
@@ -55,7 +55,7 @@ function App() {
 
   useEffect(() => {
     fetchTasks();
-  }, []);
+  }, [fetchTasks]);
 
 
   const taskAddHandler = (task) => {
